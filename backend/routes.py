@@ -2,7 +2,7 @@
 
 from flask import Blueprint, jsonify, request
 
-from models import Post
+from models import Post, posts
 
 api_blueprint = Blueprint('api', __name__)
 
@@ -47,6 +47,5 @@ def update_post(post_id):
 # Endpoint do usuwania posta
 @api_blueprint.route('/posts/<int:post_id>', methods=['DELETE'])
 def delete_post(post_id):
-    global posts
-    posts = [post for post in posts if post.id != post_id]
+    p = [post for post in posts if post.id != post_id]
     return jsonify({'result': 'Post deleted'})
