@@ -40,6 +40,16 @@ def train_model():
         ('imputer', SimpleImputer(strategy='median'))
     ])
 
+    # Sprawdzamy unikalne kategorie w kolumnach kategorycznych w zbiorze treningowym i testowym
+    print("Unikalne kategorie w zbiorze treningowym:")
+    for col in categorical_features:
+        print(f"{col}: {X_train[col].unique()}")
+
+    print("Unikalne kategorie w zbiorze testowym:")
+    for col in categorical_features:
+        print(f"{col}: {X_test[col].unique()}")
+
+
     # Pipeline dla cech kategorycznych
     categorical_pipeline = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
@@ -57,7 +67,7 @@ def train_model():
     # Pipeline modelu
     model_pipeline = Pipeline(steps=[
         ('preprocessor', preprocessor),
-        ('regressor', RandomForestRegressor(n_estimators=100, random_state=42))
+        ('regressor', RandomForestRegressor(n_estimators=15, random_state=42))
     ])
 
     # Trenowanie modelu
@@ -80,7 +90,7 @@ def train_model():
     print(f"R^2 Score: {r2}")
 
     # Zapisanie modelu
-    joblib.dump(model_pipeline, 'model/random_forest_model.pkl')
+    joblib.dump(model_pipeline, '../model/random_forest_model.pkl')
     print("Model zapisany jako 'model/random_forest_model.pkl'")
 
 if __name__ == '__main__':

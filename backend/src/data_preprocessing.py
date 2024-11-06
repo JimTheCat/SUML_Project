@@ -61,13 +61,13 @@ def extract_features(dataset):
         recommendations = game.get('recommendations', 0)
         average_playtime_2weeks = game.get('average_playtime_2weeks', 0)
 
-        # Ekstrakcja cech kategorycznych
-        languages = game.get('supported_languages', "")
-        developers = ", ".join(game.get('developers', []))
-        publishers = ", ".join(game.get('publishers', []))
-        genres = ", ".join(game.get('genres', []))
-        categories = ", ".join(game.get('categories', []))
-        tags = ", ".join([str(tag) for tag in game.get('tags', [])])
+        # Ekstrakcja cech kategorycznych (przechowujemy je jako listy, nie jako ciągi znaków)
+        languages = game.get('supported_languages', [])
+        developers = game.get('developers', [])
+        publishers = game.get('publishers', [])
+        genres = game.get('genres', [])
+        categories = game.get('categories', [])
+        tags = game.get('tags', [])
 
         data.append([
             estimated_owners, peak_ccu, price, dlc_count, positive, negative,
@@ -92,12 +92,19 @@ def preprocess_data(df):
     :param df: Pandas DataFrame z wybranymi cechami.
     :return: Przetworzony DataFrame.
     """
-    # Konwersja list na tuple w całym DataFrame
-    df = df.map(lambda x: tuple(x) if isinstance(x, list) else x)
+    # Kolumny, które mogą zawierać listy
+    columns_with_lists = ['languages', 'genres', 'developers', 'publishers', 'categories', 'tags']
 
-    # Możesz dodać dodatkowe kroki przetwarzania tutaj
-    # Na przykład: usuwanie duplikatów, dodatkowe czyszczenie danych, itp.
+    for col in columns_with_lists:
+        # Jeśli kolumna zawiera listę, zamień ją na ciąg znaków
+        df[col] = df[col].apply(lambda x: ', '.join(x) if isinstance(x, list) else x)
+
+    # Konwertowanie tags z dict na ciąg znaków
+    df['tags'] = df['tags'].apply(lambda x: ', '.join(f"{k}: {v}" for k, v in x.items()) if isinstance(x, dict) else x)
+
+    # Usuwanie duplikatów
     df = df.drop_duplicates()
+
     return df
 
 def get_preprocessed_data(filepath='data/games.json'):
